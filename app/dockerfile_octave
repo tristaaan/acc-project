@@ -1,0 +1,5 @@
+FROM ubuntu
+RUN apt-add-repository -y ppa:picaso/octave
+RUN apt-get update
+RUN apt-get install octave
+RUN apt-get install liboctave-dev

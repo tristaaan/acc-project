@@ -11,12 +11,21 @@
     sudo apt-get install -y docker-ce
     
 
-### a.  App Container
+### a.  BaaS-App Container
+
+  Navigate to acc-project/baas (requires Dockerfile inside)
+
+  run: 
+  
+    sudo docker build -t baas . 
+    
+    sudo docker run baas
+
 
 
 ### b.  Broker Container
 
-  Navigate to acc-project/baas/broker (requires Dockerfile inside)
+  Navigate to acc-project/broker (requires Dockerfile inside)
 
   run: 
   
@@ -24,4 +33,13 @@
     
     sudo docker run broker
 
+
 ### c.  Worker Containers
+
+Navigate to acc-project/worker (requires Dockerfile inside)
+
+  run: 
+  
+    sudo docker build -t worker<Nr> . 
+    
+    sudo docker run worker<Nr>

@@ -1,6 +1,31 @@
 # BENCHOP as a Service
 
-## Install Docker on the VM (Community Edition)
+## 
+
+## Idea
+
+## Use it
+
+### Start a VM
+
+Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings:
+    
+    Name: ACC15_BENCHOP
+    
+    Size: ACCHT18.normal
+    
+    Key Pair: group-13
+    
+    Network: SNIC 2018/10-30 Internal IPv4 Network
+    
+    Security Groups: gpl
+    
+  + assign Floating-IP ! (atm 130.238.28.220)
+
+
+### Preparation
+
+Install Docker on the VM (Community Edition):
 
     sudo apt-get update
     
@@ -13,9 +38,10 @@
 
 ### a.  BaaS-App Container
 
-  Navigate to acc-project/baas (requires Dockerfile inside)
+#### Info
 
-  run: 
+#### Use it
+  Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
   
     sudo docker build -t baas . 
     
@@ -25,9 +51,10 @@
 
 ### b.  Broker Container
 
-  Navigate to acc-project/broker (requires Dockerfile inside)
+#### Info
 
-  run: 
+#### Use it
+  Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
   
     sudo docker build -t broker . 
     
@@ -36,10 +63,23 @@
 
 ### c.  Worker Containers
 
-Navigate to acc-project/worker (requires Dockerfile inside)
+#### Info
 
-  run: 
-  
+#### Use it
+Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
+
     sudo docker build -t worker<Nr> . 
     
     sudo docker run worker<Nr>
+
+
+### d.  (Flower Container ?)
+
+#### Info
+
+#### Use it
+Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
+  
+    sudo docker build -t flower . 
+    
+    sudo docker run flower

@@ -1,6 +1,6 @@
 # BENCHOP as a Service
 
-## Install Docker on the VM
+## Install Docker on the VM (Community Edition=
 
     sudo apt-get update
     
@@ -16,9 +16,7 @@
 
 ### b.  Broker Container
 
-  Navigate to acc-project/baas/broker
-  
-  Requires Dockerfile
+  Navigate to acc-project/baas/broker (requires Dockerfile inside)
 
   run: 
   

@@ -4,7 +4,11 @@ from flasgger import Swagger
 import subprocess
 import sys
 
+UPLOAD_FOLDER = '~/problem_uploads/'
+ALLOWED_EXTENSIONS = set(['m', 'mat'])
+
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 Swagger(app, template={
   "info": {
       "title": "BENCHOP as a Service API",
@@ -17,6 +21,8 @@ def all():
   """
   Run all benchmarks
   ---
+  tags:
+    - problems
   responses:
     500:
       description: Error The language is not awesome!
@@ -26,10 +32,12 @@ def all():
   return 'unimplemented'
 
 @app.route('/problem/<string:name>', methods=['POST'])
-def fd(name):
+def parameter_problem(name):
   '''
   Run a problem
   ---
+  tags:
+    - problems
   parameters:
     - name: name
       in: path
@@ -73,22 +81,18 @@ def fd(name):
   responses:
     200:
       description: Results
+    404:
+      description: Problem not found
   '''
   return 'Problem "%s" requested' % name
-
-# @app.route('/problem/', methods=['POST'])
-# def rbf_fd():
-#   return 'unimplemented'
-
-# @app.route('/problem/', methods=['POST'])
-# def cos():
-#   return 'unimplemented'
 
 @app.route('/version', methods=['GET'])
 def version():
   """
   Get octave version
   ---
+  tags:
+    - meta
   responses:
     200:
       description: version of octave

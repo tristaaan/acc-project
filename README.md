@@ -6,9 +6,8 @@
   
   Requires Dockerfile
 
-  ´´´
   run: 
-    - sudo docker build -t broker . \n
-    - sudo docker run broker
-  ´´´
-  
+    ```
+    sudo docker build -t broker . 
+    sudo docker run broker
+    ```

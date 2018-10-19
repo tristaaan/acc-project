@@ -11,10 +11,10 @@
     sudo apt-get install -y docker-ce
     
 
-### App Container
+### I. App Container
 
 
-### Broker Container
+### II. Broker Container
 
   Navigate to acc-project/baas/broker
   
@@ -26,4 +26,4 @@
     
     sudo docker run broker
 
-### Worker Containers
+### III. Worker Containers

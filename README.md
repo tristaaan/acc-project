@@ -8,7 +8,7 @@
 
 ### Start a VM
 
-Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings:
+  + Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings:
     
     Name: ACC15_BENCHOP
     
@@ -25,7 +25,7 @@ Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance wit
 
 ### Preparation
 
-Install Docker on the VM (Community Edition):
+  + Install Docker on the VM (Community Edition):
 
     sudo apt-get update
     
@@ -34,14 +34,20 @@ Install Docker on the VM (Community Edition):
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     
     sudo apt-get install -y docker-ce
+
+  + Clone the Github repository 
     
+    git clone https://github.com/tristaaan/acc-project.git
 
 ### a.  BaaS-App Container
 
 #### Info
 
+  + The BenchOp-as-a-Service-App allows HTTP-requests to request results for BenchOp functions and given parameters.
+  + The Dockerfile imports Flask, Swagger(?), ...
+
 #### Use it
-  Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
+  + Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
   
     sudo docker build -t baas . 
     
@@ -53,8 +59,11 @@ Install Docker on the VM (Community Edition):
 
 #### Info
 
+  + The broker distributes tasks to the workers using a queue.
+  + The Dockerfile imports the rabbitmq-server and sets up a user and the user-settings.
+
 #### Use it
-  Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
+  + Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
   
     sudo docker build -t broker . 
     
@@ -65,8 +74,11 @@ Install Docker on the VM (Community Edition):
 
 #### Info
 
+  + Each worker has its own container. It receives a task from the broker to compute it and returns a result. 
+  + The Dockerfile imports the BenchOp functions, octave, celery and connect the worker to the broker.
+
 #### Use it
-Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
+  + Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
 
     sudo docker build -t worker<Nr> . 
     
@@ -77,9 +89,23 @@ Navigate to acc-project/worker (requires Dockerfile inside) and start the contai
 
 #### Info
 
+  + A tool to control the workers. Use with URL in the browser to get a UI.
+  + (automatically connects to all rabbitmq traffic / broker ?)
+
 #### Use it
-Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
+  + Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
   
     sudo docker build -t flower . 
     
     sudo docker run flower
+    
+
+### e.  (User Interface ?)
+
+#### Info
+
+  + ...
+
+#### Use it
+  
+  + ...

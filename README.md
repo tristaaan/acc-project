@@ -1,10 +1,11 @@
 # BENCHOP as a Service
 
-## 
-
 ## Idea
 
-## Use it
+Select a problem, and optional set parameters, to request a solution from BenchOp. The request is received by the baas application and creates a queue for the broker to distribute the tasks to the workers. Each workers will return its result and the baas application connects them into a ranking/statistic which is finally shown to the end-user. The whole process is observed by Flower to check the progress.
+
+
+## Make it work
 
 ### Start a VM
 
@@ -23,7 +24,7 @@ Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance wit
 + assign Floating-IP ! (atm 130.238.28.220)
 
 
-### Preparation
+### Prepare the VM
 
 Install Docker on the VM (Community Edition):
 

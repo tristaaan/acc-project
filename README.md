@@ -1,6 +1,14 @@
 # BENCHOP as a Service
 
-### Broker container
+## Install Docker on the VM
+
+    sudo apt-get install -y docker-ce
+    
+
+### App Container
+
+
+### Broker Container
 
   Navigate to acc-project/baas/broker
   
@@ -11,3 +19,5 @@
     sudo docker build -t broker . 
     
     sudo docker run broker
+
+### Worker Containers

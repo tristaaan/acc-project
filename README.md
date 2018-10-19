@@ -8,8 +8,8 @@
 
 ### Start a VM
 
-  + Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings:
-    
+Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings: 
+
     Name: ACC15_BENCHOP
     
     Size: ACCHT18.normal
@@ -20,12 +20,12 @@
     
     Security Groups: gpl
     
-  + assign Floating-IP ! (atm 130.238.28.220)
++ assign Floating-IP ! (atm 130.238.28.220)
 
 
 ### Preparation
 
-  + Install Docker on the VM (Community Edition):
+Install Docker on the VM (Community Edition):
 
     sudo apt-get update
     
@@ -35,9 +35,10 @@
     
     sudo apt-get install -y docker-ce
 
-  + Clone the Github repository 
+Clone the Github repository 
     
     git clone https://github.com/tristaaan/acc-project.git
+
 
 ### a.  BaaS-App Container
 
@@ -47,12 +48,11 @@
   + The Dockerfile imports Flask, Swagger(?), ...
 
 #### Use it
-  + Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
+Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
   
     sudo docker build -t baas . 
     
     sudo docker run baas
-
 
 
 ### b.  Broker Container
@@ -63,7 +63,7 @@
   + The Dockerfile imports the rabbitmq-server and sets up a user and the user-settings.
 
 #### Use it
-  + Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
+Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
   
     sudo docker build -t broker . 
     
@@ -78,7 +78,7 @@
   + The Dockerfile imports the BenchOp functions, octave, celery and connect the worker to the broker.
 
 #### Use it
-  + Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
+Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
 
     sudo docker build -t worker<Nr> . 
     
@@ -93,7 +93,7 @@
   + (automatically connects to all rabbitmq traffic / broker ?)
 
 #### Use it
-  + Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
+Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
   
     sudo docker build -t flower . 
     
@@ -108,4 +108,6 @@
 
 #### Use it
   
-  + ...
+...
+
+    ...

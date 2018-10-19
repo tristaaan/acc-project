@@ -7,3 +7,7 @@ app = Celery('baas_celery',
              broker= baas_broker,
              backend= baas_broker,
              include=['baas_celery.tasks'])
+
+
+if __name__ == '__main__': 
+    app.start()

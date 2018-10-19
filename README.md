@@ -7,7 +7,9 @@
   Requires Dockerfile
 
   run: 
+  
     ```
     sudo docker build -t broker . 
+    
     sudo docker run broker
     ```

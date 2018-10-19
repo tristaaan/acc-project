@@ -1,6 +1,6 @@
 # BENCHOP as a Service
 
-## Install Docker on the VM (Community Edition=
+## Install Docker on the VM (Community Edition)
 
     sudo apt-get update
     

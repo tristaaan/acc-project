@@ -22,9 +22,11 @@ Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance wit
     Security Groups: gpl
     
 + assign Floating-IP ! (atm 130.238.28.220)
+[maybe as CloudInit]
 
+### Prepare the VM 
 
-### Prepare the VM
+[maybe as cloud-config]
 
 Install Docker on the VM (Community Edition):
 

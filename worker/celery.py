@@ -3,10 +3,10 @@ from celery import Celery
 
 baas_broker = 'amqp://acc13_user:acc13_pw@localhost/acc13_vhost'
 
-app = Celery('baas_celery',
+app = Celery('baas',
              broker= baas_broker,
              backend= baas_broker,
-             include=['baas_celery.tasks'])
+             include=['.tasks'])
 
 
 if __name__ == '__main__': 

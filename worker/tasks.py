@@ -1,6 +1,9 @@
 from __future__ import absolute_import
-from .celery import app
 from oct2py import Oct2Py
+
+baas_broker = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
+baas_backend = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
+app = Celery('celery_app', broker=baas_broker, backend=baas_backend)
 
 @app.task
 def compute(problemname):
@@ -13,8 +16,8 @@ def compute(problemname):
 @app.task
 def compute_par(problemname, parameters):
     oc = Oct2Py()
-    time, relerr = oc.feval(problemname + "_param", 
-                            parameters.get("S"), parameters.get("K"), parameters.get("T"), 
+    time, relerr = oc.feval(problemname + "_param",
+                            parameters.get("S"), parameters.get("K"), parameters.get("T"),
                             parameters.get("r"), parameters.get("sig"), parameters.get("U"), -1)
     timelist = time.tolist()
     relerrlist = relerr.tolist()

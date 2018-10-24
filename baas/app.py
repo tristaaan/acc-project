@@ -1,8 +1,13 @@
-#!flask/bin/python
-from flask import Flask, jsonify
-from flasgger import Swagger
+#!/usr/bin/python
 import subprocess
 import sys
+from flask import Flask, jsonify
+from flasgger import Swagger
+
+import sys
+# hack, sorry PEP8
+sys.path.insert(0, "/home/ubuntu/acc-project/worker")
+from tasks import test_method
 
 UPLOAD_FOLDER = '~/problem_uploads/'
 ALLOWED_EXTENSIONS = set(['m', 'mat'])

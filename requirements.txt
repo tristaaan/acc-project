@@ -1,3 +1,5 @@
 baas
 Flask
 flasgger
+celery
+Oct2Py

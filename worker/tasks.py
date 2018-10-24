@@ -1,5 +1,5 @@
-from __future__ import absolute_import
 from oct2py import Oct2Py
+from celery import Celery
 
 baas_broker = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
 baas_backend = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'

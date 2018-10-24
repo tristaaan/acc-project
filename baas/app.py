@@ -91,6 +91,11 @@ def parameter_problem(name):
   '''
   return 'Problem "%s" requested' % name
 
+@app.route('/problem/test', methods=['GET'])
+def test_method():
+    tm = test_method.delay()
+    return tm.wait()
+
 @app.route('/version', methods=['GET'])
 def version():
   """

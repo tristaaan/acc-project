@@ -112,6 +112,8 @@ The Dockerfile imports the BenchOp functions, octave, celery and connect the wor
     
     RUN pip install celery
     
+    RUN pip install oct2py
+    
     ADD /BENCHOP benchop/
     
     ADD /worker ./

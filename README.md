@@ -47,8 +47,14 @@ Clone the Github repository
 
 #### Info
 
-  + The BenchOp-as-a-Service-App allows HTTP-requests to request results for BenchOp functions and given parameters.
-  + The Dockerfile imports Flask, Swagger(?), ...
+The BenchOp-as-a-Service-App allows HTTP-requests to request results for BenchOp functions and given parameters.
+The Dockerfile imports Flask, Swagger(?), ...
+
+    RUN apt-get update 
+    
+    RUN apt-get install python-flask
+    
+    
 
 #### Use it
 Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
@@ -62,8 +68,26 @@ Navigate to acc-project/baas (requires Dockerfile inside) and start the containe
 
 #### Info
 
-  + The broker distributes tasks to the workers using a queue.
-  + The Dockerfile imports the rabbitmq-server and sets up a user and the user-settings.
+The broker distributes tasks to the workers using a queue.
+The Dockerfile imports the rabbitmq-server and sets up a user and the user-settings.
+
+    FROM ubuntu
+    
+    RUN apt-get update
+    
+    RUN apt-get -y upgrade
+    
+    RUN apt-get install -y python-pip
+    
+    RUN pip install --upgrade pip
+    
+    RUN apt-get install -y rabbitmq-server
+    
+    ADD brokerConfig.sh ./
+    
+    EXPOSE 5000
+    
+    CMD ["bash", "brokerConfig.sh"]
 
 #### Use it
 Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
@@ -77,8 +101,22 @@ Navigate to acc-project/broker (requires Dockerfile inside) and start the contai
 
 #### Info
 
-  + Each worker has its own container. It receives a task from the broker to compute it and returns a result. 
-  + The Dockerfile imports the BenchOp functions, octave, celery and connect the worker to the broker.
+Each worker has its own container. It receives a task from the broker to compute it and returns a result. 
+The Dockerfile imports the BenchOp functions, octave, celery and connect the worker to the broker.
+   
+    RUN apt-get update
+    
+    RUN apt-get install octave
+    
+    RUN apt-get install -y python-pip
+    
+    RUN pip install celery
+    
+    RUN pip install oct2py
+    
+    ADD /BENCHOP benchop/
+    
+    ADD /worker ./
 
 #### Use it
 Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
@@ -92,8 +130,16 @@ Navigate to acc-project/worker (requires Dockerfile inside) and start the contai
 
 #### Info
 
-  + A tool to control the workers. Use with URL in the browser to get a UI.
-  + (automatically connects to all rabbitmq traffic / broker ?)
+A tool to control the workers. Use with URL in the browser to get a UI.
+(automatically connects to all rabbitmq traffic / broker ?)
+
+    RUN apt-get update
+    
+    RUN apt-get install -y python-pip
+    
+    RUN pip install flower
+    
+    CMD celery -A test_celery flower (?)
 
 #### Use it
 Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 

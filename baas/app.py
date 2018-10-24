@@ -7,7 +7,7 @@ from flasgger import Swagger
 import sys
 # hack, sorry PEP8
 sys.path.insert(0, "/home/ubuntu/acc-project/worker")
-from tasks import test_method
+from tasks import test_method, test_method_param
 
 UPLOAD_FOLDER = '~/problem_uploads/'
 ALLOWED_EXTENSIONS = set(['m', 'mat'])
@@ -92,9 +92,9 @@ def parameter_problem(name):
   return 'Problem "%s" requested' % name
 
 @app.route('/problem/test', methods=['GET'])
-def test_method():
-    tm = test_method.delay()
-    return tm.wait()
+def run_test_method():
+    tm = test_method_param.delay(1,2,3)
+    return str(tm.wait())
 
 @app.route('/version', methods=['GET'])
 def version():

@@ -9,39 +9,37 @@ Select a problem, and optional set parameters, to request a solution from BenchO
 
 ### Start a VM
 
-Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings: 
+Go to https://uppmax.cloud.snic.se/project/instances/ and set up an instance with the following settings:
 
-    Name: ACC15_BENCHOP
-    
-    Size: ACCHT18.normal
-    
-    Key Pair: group-13
-    
-    Network: SNIC 2018/10-30 Internal IPv4 Network
-    
-    Security Groups: gpl
-    
+```
+Name: ACC15_BENCHOP
+Size: ACCHT18.normal
+Key Pair: group-13
+Network: SNIC 2018/10-30 Internal IPv4 Network
+Security Groups: gpl
+```
+
 + assign Floating-IP ! (atm 130.238.28.220)
 [maybe as CloudInit]
 
-### Prepare the VM 
+### Prepare the VM
 
 [maybe as cloud-config]
 
 Install Docker on the VM (Community Edition):
 
-    sudo apt-get update
-    
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    
-    sudo apt-get install -y docker-ce
+```
+sudo apt-get update
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get install -y docker-ce
+```
 
-Clone the Github repository 
-    
-    git clone https://github.com/tristaaan/acc-project.git
+Clone the Github repository
 
+```
+git clone https://github.com/tristaaan/acc-project.git
+```
 
 ### a.  BaaS-App Container
 
@@ -50,19 +48,18 @@ Clone the Github repository
 The BenchOp-as-a-Service-App allows HTTP-requests to request results for BenchOp functions and given parameters.
 The Dockerfile imports Flask, Swagger(?), ...
 
-    RUN apt-get update 
-    
-    RUN apt-get install python-flask
-    
-    
+```
+RUN apt-get update
+RUN apt-get install python-flask
+```
 
 #### Use it
 Navigate to acc-project/baas (requires Dockerfile inside) and start the container:
-  
-    sudo docker build -t baas . 
-    
-    sudo docker run baas
 
+```
+sudo docker build -t baas .
+sudo docker run baas
+```
 
 ### b.  Broker Container
 
@@ -71,60 +68,50 @@ Navigate to acc-project/baas (requires Dockerfile inside) and start the containe
 The broker distributes tasks to the workers using a queue.
 The Dockerfile imports the rabbitmq-server and sets up a user and the user-settings.
 
-    FROM ubuntu
-    
-    RUN apt-get update
-    
-    RUN apt-get -y upgrade
-    
-    RUN apt-get install -y python-pip
-    
-    RUN pip install --upgrade pip
-    
-    RUN apt-get install -y rabbitmq-server
-    
-    ADD brokerConfig.sh ./
-    
-    EXPOSE 5000
-    
-    CMD ["bash", "brokerConfig.sh"]
+```
+FROM ubuntu
+RUN apt-get update
+RUN apt-get -y upgrade
+RUN apt-get install -y python-pip
+RUN pip install --upgrade pip
+RUN apt-get install -y rabbitmq-server
+ADD brokerConfig.sh ./
+EXPOSE 5000
+CMD ["bash", "brokerConfig.sh"]
+```
 
 #### Use it
 Navigate to acc-project/broker (requires Dockerfile inside) and start the container:
-  
-    sudo docker build -t broker . 
-    
-    sudo docker run broker
 
+```
+sudo docker build -t broker .
+sudo docker run broker
+```
 
 ### c.  Worker Containers
 
 #### Info
 
-Each worker has its own container. It receives a task from the broker to compute it and returns a result. 
+Each worker has its own container. It receives a task from the broker to compute it and returns a result.
 The Dockerfile imports the BenchOp functions, octave, celery and connect the worker to the broker.
-   
-    RUN apt-get update
-    
-    RUN apt-get install octave
-    
-    RUN apt-get install -y python-pip
-    
-    RUN pip install celery
-    
-    RUN pip install oct2py
-    
-    ADD /BENCHOP benchop/
-    
-    ADD /worker ./
+
+```
+RUN apt-get update
+RUN apt-get install octave
+RUN apt-get install -y python-pip
+RUN pip install celery
+RUN pip install oct2py
+ADD /BENCHOP benchop/
+ADD /worker ./
+```
 
 #### Use it
 Navigate to acc-project/worker (requires Dockerfile inside) and start the container:
 
-    sudo docker build -t worker<Nr> . 
-    
-    sudo docker run worker<Nr>
-
+```
+sudo docker build -t worker<Nr> .
+sudo docker run worker<Nr>
+```
 
 ### d.  (Flower Container ?)
 
@@ -133,21 +120,20 @@ Navigate to acc-project/worker (requires Dockerfile inside) and start the contai
 A tool to control the workers. Use with URL in the browser to get a UI.
 (automatically connects to all rabbitmq traffic / broker ?)
 
-    RUN apt-get update
-    
-    RUN apt-get install -y python-pip
-    
-    RUN pip install flower
-    
-    CMD celery -A test_celery flower (?)
+```
+RUN apt-get update
+RUN apt-get install -y python-pip
+RUN pip install flower
+CMD celery -A test_celery flower (?)
+```
 
 #### Use it
-Navigate to acc-project/flower (requires Dockerfile inside) and start the container: 
-  
-    sudo docker build -t flower . 
-    
-    sudo docker run flower
-    
+Navigate to acc-project/flower (requires Dockerfile inside) and start the container:
+
+```
+sudo docker build -t flower .
+sudo docker run flower
+```
 
 ### e.  (User Interface ?)
 
@@ -156,7 +142,7 @@ Navigate to acc-project/flower (requires Dockerfile inside) and start the contai
   + ...
 
 #### Use it
-  
+
 ...
 
     ...

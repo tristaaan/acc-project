@@ -19,7 +19,7 @@ def compute(problemname):
     return timelist, relerrlist
 
 @app.task
-def compute_par(problemname, parameters):
+def compute_param(problemname, parameters):
     oc = Oct2Py()
     time, relerr = oc.feval(problemname + "_param",
                             parameters.get("S"), parameters.get("K"), parameters.get("T"),
@@ -27,12 +27,6 @@ def compute_par(problemname, parameters):
     timelist = time.tolist()
     relerrlist = relerr.tolist()
     return timelist, relerrlist
-
-@app.task
-def test_method():
-    oc = config()
-    res = oc.feval('test_function', 3,4,10)
-    return res
 
 @app.task
 def test_method_param(x,y,z):

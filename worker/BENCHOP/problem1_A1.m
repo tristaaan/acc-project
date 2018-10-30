@@ -1,4 +1,4 @@
-function [tBSeuCallUI,rBSeuCallUI] = problem1_A1()
+function [timeBSeuCallUI,relerrBSeuCallUI] = problem1_A1()
 
 format long
 

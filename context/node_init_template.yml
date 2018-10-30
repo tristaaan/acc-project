@@ -1,23 +1,12 @@
 #cloud-config
-
 apt_update: true
 apt_upgrade: true
 
 packages:
   - docker.io
 
-write_files:
-  - path: /home/ubuntu/.ssh/acc13-key
-    owner: ubuntu:ubuntu
-    permissions: 0600
-    content: |
-      $private_key
-  - path: /home/ubuntu/.ssh/acc13-key.pub
-    owner: ubuntu:ubuntu
-    permissions: 0655
-    content: $public_key
-
 runcmd:
-  - eval `ssh-agent`
-  - ssh-add /home/ubuntu/.ssh/acc-group13
+  - docker pull tristaaan/acc-worker
   - docker swarm join --token $docker_token $ip:2377
+
+final_message: "The system is finally up"

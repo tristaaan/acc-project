@@ -1,4 +1,4 @@
-function [tBSamPutUI,rBSamPutUI] = problem1_B1_param(S,K,T,r,sig,U)
+function [timeBSamPutUI,relerrBSamPutUI] = problem1_B1_param(S,K,T,r,sig,U)
 
 format long
 

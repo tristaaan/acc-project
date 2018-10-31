@@ -41,7 +41,8 @@ def all():
     stats = []
     for p in all_problems:
         stats.append(tasks.compute.s(p))
-    results = group(stats).apply_async().get()
+    results = group(stats).apply_async() \
+        .get(timeout=600)
     return json.dumps(results)
 
 @app.route('/problem/<string:name>', methods=['GET'])
@@ -144,6 +145,33 @@ def get_workers():
             description: JSON of the workers and their statuses
     """
     r = requests.get('http://localhost:5555/api/workers?status')
+    return json.dumps(r.json(), indent=2)
+
+# consult rabbitmq manager api:
+# https://cdn.rawgit.com/rabbitmq/rabbitmq-management/v3.7.8/priv/www/api/index.html
+@app.route('/workers/queue', methods=['GET', 'DELETE'])
+def purge_queue():
+    """
+    inspect or delete messages in the queue
+    ---
+    tags:
+        - workers
+    responses:
+        200:
+            description: queue
+    """
+    headers = { 'content-type': 'application/json' }
+    auth = ('ubuntu', '1234')
+    if request.method == 'DELETE':
+        r = requests.delete('http://localhost:15672/api/queues/myvhost/celery/contents', \
+            auth=auth, headers=headers)
+    elif request.method == 'GET':
+        data = json.dumps({
+            'count':5, 'ackmode':'ack_requeue_true',
+            'encoding':'auto', 'truncate':10000
+        })
+        r = requests.post('http://localhost:15672/api/queues/myvhost/celery/get', \
+            auth=auth, headers=headers, data=data)
     return json.dumps(r.json(), indent=2)
 
 @app.route('/version', methods=['GET'])

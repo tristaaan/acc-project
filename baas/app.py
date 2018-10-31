@@ -147,33 +147,6 @@ def get_workers():
     r = requests.get('http://localhost:5555/api/workers?status')
     return json.dumps(r.json(), indent=2)
 
-# consult rabbitmq manager api:
-# https://cdn.rawgit.com/rabbitmq/rabbitmq-management/v3.7.8/priv/www/api/index.html
-@app.route('/workers/queue', methods=['GET', 'DELETE'])
-def purge_queue():
-    """
-    inspect or delete messages in the queue
-    ---
-    tags:
-        - workers
-    responses:
-        200:
-            description: queue
-    """
-    headers = { 'content-type': 'application/json' }
-    auth = ('ubuntu', '1234')
-    if request.method == 'DELETE':
-        r = requests.delete('http://localhost:15672/api/queues/myvhost/celery/contents', \
-            auth=auth, headers=headers)
-    elif request.method == 'GET':
-        data = json.dumps({
-            'count':5, 'ackmode':'ack_requeue_true',
-            'encoding':'auto', 'truncate':10000
-        })
-        r = requests.post('http://localhost:15672/api/queues/myvhost/celery/get', \
-            auth=auth, headers=headers, data=data)
-    return json.dumps(r.json(), indent=2)
-
 @app.route('/version', methods=['GET'])
 def version():
     """
@@ -186,6 +159,44 @@ def version():
             description: version of octave
     """
     return tasks.version()
+
+# consult rabbitmq manager api:
+# https://cdn.rawgit.com/rabbitmq/rabbitmq-management/v3.7.8/priv/www/api/index.html
+@app.route('/queue', methods=['GET'])
+def get_queue():
+    """
+    inspect messages in the queue
+    ---
+    tags:
+        - queue
+    responses:
+        200:
+            description: queue
+    """
+    headers = { 'content-type': 'application/json' }
+    auth = ('ubuntu', '1234')
+    data = json.dumps({
+        'count':5, 'ackmode':'reject_requeue_true', 'encoding':'auto'
+    })
+    r = requests.post('http://localhost:15672/api/queues/myvhost/celery/get', \
+        auth=auth, headers=headers, data=data)
+    return json.dumps(r.json(), indent=2)
+
+@app.route('/queue', methods=['DELETE'])
+def purge_queue():
+    """
+    purge messages in the queue
+    ---
+    tags:
+        - queue
+    responses:
+        200:
+            description: queue
+    """
+    auth = ('ubuntu', '1234')
+    r = requests.delete('http://localhost:15672/api/queues/myvhost/celery/contents', \
+        auth=auth)
+    return 'Queue cleared'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug=True)

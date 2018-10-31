@@ -1,12 +1,17 @@
-from oct2py import Oct2Py, utils
-from celery import Celery
 import subprocess
 import sys
 import zipfile
 
+from oct2py import Oct2Py, utils
+from celery import Celery
+from kombu import Queue
+from kombu.common import Broadcast
+
 baas_broker = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
 baas_backend = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
 app = Celery('celery_app', broker=baas_broker, backend=baas_backend)
+
+app.conf.task_queues = (Queue('default'), Broadcast('broadcast_tasks'),)
 
 # change directory to BENCHOP and return the Oct2Py object
 def config():
@@ -14,29 +19,26 @@ def config():
     oc.chdir('BENCHOP/')
     return oc
 
-@app.task
-def pull_method(name, zip_string):
-    #command = "scp -r %s:/UPLOAD_FOLDER/%s DESTINATION/BENCHOP/" % (origin, name)
-    #out = subprocess.check_output(command.split(" ")) #split?
-
+@app.task(queue='broadcast_tasks')
+def upload_zip(filename, zip_string):
     # save file
-    zip_name = name + '.zip'
-    with open(zip_name, 'w') as file:
+    with open(filename, 'wb') as file:
         file.write(zip_string)
     # extract file
-    with zipfile.ZipFile('newmethod.zip', "r") as z:
+    name = filename.split('.')[0]
+    with zipfile.ZipFile(filename, "r") as z:
         z.extractall("/home/ubuntu/BENCHOP/%s" % (name)) #zip.split('.')[0]))
     return 1
 
-@app.task
-def compute(problemname, methods):
+@app.task(queue='default')
+def compute(problemname):
     oc = config()
-    time, relerr = oc.feval(problemname, methods, nout=2)
+    time, relerr = oc.feval(problemname, nout=2)
     timelist = time.tolist()
     relerrlist = relerr.tolist()
     return (timelist, relerrlist)
 
-@app.task
+@app.task(queue='default')
 def compute_param(problemname, parameters):
     oc = config()
     time, relerr = oc.feval(problemname + "_param",
@@ -47,7 +49,7 @@ def compute_param(problemname, parameters):
     relerrlist = relerr.tolist()
     return timelist, relerrlist
 
-@app.task
+@app.task(queue='default')
 def test_method_param(x,y,z):
     oc = config()
     res = oc.feval('test_function', x, y, z)

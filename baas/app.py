@@ -1,24 +1,33 @@
 #!/usr/bin/python
 import json
 import requests
+import os
 import subprocess
 import sys
-from flask import Flask, jsonify, request
+from flask import Flask, abort, jsonify, request
 from flasgger import Swagger
 from celery import group
+from werkzeug.utils import secure_filename
 
 # hacky import, sorry PEP8
 sys.path.insert(0, "/home/ubuntu/acc-project/worker")
 import tasks
 
-UPLOAD_FOLDER = '~/problem_uploads/'
-ALLOWED_EXTENSIONS = set(['m', 'mat'])
+# File upload support
+UPLOAD_FOLDER = '/home/ubuntu/uploads'
+ALLOWED_EXTENSIONS = set(['zip'])
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
-#meths={'MC','MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+#methods={'MC','MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
 #    'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT'};
 
-meths=['MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
-'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT']
+methods = ['MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
+    'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT']
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -99,7 +108,7 @@ def problem(name):
     '''
     if 'S' in request.args or 'K' in request.args or \
         'T' in request.args or 'r' in request.args or 'sig' in request.args:
-        tm, rel = tasks.compute_param.delay(name, meths, request.args)
+        tm, rel = tasks.compute_param.delay(name, methods, request.args)
     else:
         tm, rel = tasks.compute.delay(name).get()
     return str(tm) + ' ' + str(rel)
@@ -139,34 +148,41 @@ def run_test_method():
     tm = tasks.test_method_param.delay(a, b, c)
     return str(tm.wait())
 
-@app.route('/upload_method', methods=['GET'])
-def upload_method(name, file):
+@app.route('/problems/upload', methods=['POST'])
+def upload_method():
     '''
-    Upload a method
+    Upload a new method
     ---
     tags:
         - problems
     parameters:
-        - name: method tag
-          in: query
-          required: true
-          type: string
-          example: MC
-        - name: method file
-          in: formData
-          required: true
-          type: file
+      - in: formData
+        type: file
+        name: file
+        required: true
+        description: Upload your file in a zip.
     responses:
         200:
             description: File uploaded
-        400:
-            description: Invalid parameters
     '''
-    #save file in UPLOAD_FOLDER
-    file.
-    meths.append(name)
-    #copy method file into every worker via broadcast task
-    # ...
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        flash('No file part')
+        abort(400)
+    file = request.files['file']
+    # if user does not select file
+    if file.filename == '':
+        flash('No selected file')
+        abort(400)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        with open(file_path, 'rb') as zip_file:
+            zip_string = zip_file.read()
+            tasks.upload_zip(filename, zip_string)
+        return ('uploaded and distributed file %s' % filename)
+    abort(501)
     return 1
 
 @app.route('/workers', methods=['GET'])

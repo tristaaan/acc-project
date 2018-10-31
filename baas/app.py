@@ -14,6 +14,12 @@ import tasks
 UPLOAD_FOLDER = '~/problem_uploads/'
 ALLOWED_EXTENSIONS = set(['m', 'mat'])
 
+#meths={'MC','MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
+#    'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT'};
+
+meths=['MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
+'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT']
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 Swagger(app, template={
@@ -92,7 +98,7 @@ def problem(name):
     '''
     if 'S' in request.args or 'K' in request.args or \
         'T' in request.args or 'r' in request.args or 'sig' in request.args:
-        tm, rel = tasks.compute_param.delay(name, request.args)
+        tm, rel = tasks.compute_param.delay(name, meths, request.args)
     else:
         tm, rel = tasks.compute.delay(name).get()
     return str(tm) + ' ' + str(rel)
@@ -131,6 +137,36 @@ def run_test_method():
     c = int(request.args.get('c'))
     tm = tasks.test_method_param.delay(a, b, c)
     return str(tm.wait())
+
+@app.route('/upload_method', methods=['GET'])
+def upload_method(name, file):
+    '''
+    Upload a method
+    ---
+    tags:
+        - problems
+    parameters:
+        - name: method tag
+          in: query
+          required: true
+          type: string
+          example: MC
+        - name: method file
+          in: formData
+          required: true
+          type: file
+    responses:
+        200:
+            description: File uploaded
+        400:
+            description: Invalid parameters
+    '''
+    #save file in UPLOAD_FOLDER
+    file.
+    meths.append(name)
+    #copy method file into every worker via broadcast task
+    # ...
+    return 1
 
 @app.route('/workers', methods=['GET'])
 def get_workers():

@@ -1,5 +1,8 @@
 from oct2py import Oct2Py, utils
 from celery import Celery
+import subprocess
+import sys
+import zipfile
 
 baas_broker = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
 baas_backend = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
@@ -12,9 +15,23 @@ def config():
     return oc
 
 @app.task
-def compute(problemname):
+def pull_method(name, zip_string):
+    #command = "scp -r %s:/UPLOAD_FOLDER/%s DESTINATION/BENCHOP/" % (origin, name)
+    #out = subprocess.check_output(command.split(" ")) #split?
+
+    # save file
+    zip_name = name + '.zip'
+    with open(zip_name, 'w') as file:
+        file.write(zip_string)
+    # extract file
+    with zipfile.ZipFile('newmethod.zip', "r") as z:
+        z.extractall("/home/ubuntu/BENCHOP/%s" % (name)) #zip.split('.')[0]))
+    return 1
+
+@app.task
+def compute(problemname, methods):
     oc = config()
-    time, relerr = oc.feval(problemname, nout=2)
+    time, relerr = oc.feval(problemname, methods, nout=2)
     timelist = time.tolist()
     relerrlist = relerr.tolist()
     return (timelist, relerrlist)

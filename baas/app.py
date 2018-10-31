@@ -5,6 +5,7 @@ import subprocess
 import sys
 from flask import Flask, jsonify, request
 from flasgger import Swagger
+from celery import group
 
 # hacky import, sorry PEP8
 sys.path.insert(0, "/home/ubuntu/acc-project/worker")
@@ -22,6 +23,8 @@ Swagger(app, template={
     }
 })
 
+all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
+
 @app.route('/problem/all', methods=['GET'])
 def all():
     """
@@ -35,7 +38,11 @@ def all():
         200:
             description: The results of the benchmark
     """
-    return 'unimplemented'
+    stats = []
+    for p in all_problems:
+        stats.append(tasks.compute.s(p))
+    results = group(stats).apply_async().get()
+    return json.dumps(results)
 
 @app.route('/problem/<string:name>', methods=['GET'])
 def problem(name):

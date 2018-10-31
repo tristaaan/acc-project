@@ -47,7 +47,8 @@ def all():
     stats = []
     for p in all_problems:
         stats.append(tasks.compute.s(p))
-    results = group(stats).apply_async().get()
+    results = group(stats).apply_async() \
+        .get(timeout=600)
     return json.dumps(results)
 
 @app.route('/problem/<string:name>', methods=['GET'])
@@ -194,6 +195,44 @@ def version():
             description: version of octave
     """
     return tasks.version()
+
+# consult rabbitmq manager api:
+# https://cdn.rawgit.com/rabbitmq/rabbitmq-management/v3.7.8/priv/www/api/index.html
+@app.route('/queue', methods=['GET'])
+def get_queue():
+    """
+    inspect messages in the queue
+    ---
+    tags:
+        - queue
+    responses:
+        200:
+            description: queue
+    """
+    headers = { 'content-type': 'application/json' }
+    auth = ('ubuntu', '1234')
+    data = json.dumps({
+        'count':5, 'ackmode':'reject_requeue_true', 'encoding':'auto'
+    })
+    r = requests.post('http://localhost:15672/api/queues/myvhost/celery/get', \
+        auth=auth, headers=headers, data=data)
+    return json.dumps(r.json(), indent=2)
+
+@app.route('/queue', methods=['DELETE'])
+def purge_queue():
+    """
+    purge messages in the queue
+    ---
+    tags:
+        - queue
+    responses:
+        200:
+            description: queue
+    """
+    auth = ('ubuntu', '1234')
+    r = requests.delete('http://localhost:15672/api/queues/myvhost/celery/contents', \
+        auth=auth)
+    return 'Queue cleared'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug=True)

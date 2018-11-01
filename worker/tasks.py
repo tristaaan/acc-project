@@ -5,7 +5,7 @@ from celery import Celery
 from kombu import Queue
 from kombu.common import Broadcast
 
-manager_ip = '192.168.1.75'
+manager_ip = '192.168.1.7'
 baas_broker = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
 baas_backend = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
 app = Celery('celery_app', broker=baas_broker, backend=baas_backend)
@@ -23,8 +23,8 @@ def config():
 @app.task(queue='broadcast_tasks')
 def upload_zip(method_path, private_key):
     # install key, if necessary
-    if not os.path.isfile('/home/ubuntu/.ssh/private'):
-        private_path = '/home/ubuntu/.ssh/private'
+    private_path = '/home/ubuntu/private'
+    if not os.path.isfile(private_path):
         with open(private_path, 'w') as file:
             file.write(private_key)
         subprocess.check_output(('chmod 600 %s' % private_path).split(' '))
@@ -34,8 +34,8 @@ def upload_zip(method_path, private_key):
         os.makedirs(UPLOAD_FOLDER)
 
     # scp target zip file to the upload folder
-    subprocess.check_output(('scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/private ubuntu@%s:%s %s/.' %
-        (manager_ip, method_path, UPLOAD_FOLDER)).split(' '))
+    subprocess.check_output(('scp -o StrictHostKeyChecking=no -i %s ubuntu@%s:%s %s/.' %
+        (private_path, manager_ip, method_path, UPLOAD_FOLDER)).split(' '))
 
     # extract file to benchop
     filename = method_path.split('/')[-1]

@@ -42,11 +42,6 @@ else:
 # Confire template information for cloud-init script
 my_key ='acc-group13'
 template_data = {}
-# template_data['public_key'] = check_output(['cat', '/home/ubuntu/.ssh/%s.pub' % my_key]).decode()
-# template_data['private_key'] = check_output(['cat', '/home/ubuntu/.ssh/%s' % my_key]) \
-#     .decode() \
-#     .replace('\n', '\n      ') # yaml indentation!
-# strip the stray newline from the swarm token
 template_data['docker_token'] = check_output(\
     'sudo docker swarm join-token worker -q'.split(' ')).decode().strip()
 # local machine ip

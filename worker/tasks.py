@@ -1,17 +1,18 @@
-import subprocess
-import sys
-import zipfile
+import os, subprocess, sys, zipfile
 
 from oct2py import Oct2Py, utils
 from celery import Celery
 from kombu import Queue
 from kombu.common import Broadcast
 
-baas_broker = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
-baas_backend = 'amqp://ubuntu:1234@192.168.1.75:5672/myvhost'
+manager_ip = '192.168.1.75'
+baas_broker = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
+baas_backend = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
 app = Celery('celery_app', broker=baas_broker, backend=baas_backend)
-
 app.conf.task_queues = (Queue('default'), Broadcast('broadcast_tasks'),)
+
+UPLOAD_FOLDER = '/home/ubuntu/worker_uploads'
+BENCHOP_FOLDER = '/home/ubuntu/BENCHOP'
 
 # change directory to BENCHOP and return the Oct2Py object
 def config():
@@ -20,15 +21,28 @@ def config():
     return oc
 
 @app.task(queue='broadcast_tasks')
-def upload_zip(filename, zip_string):
-    # save file
-    with open(filename, 'wb') as file:
-        file.write(zip_string)
-    # extract file
+def upload_zip(method_path, private_key):
+    # install key, if necessary
+    if not os.path.isfile('/home/ubuntu/.ssh/private'):
+        private_path = '/home/ubuntu/.ssh/private'
+        with open(private_path, 'w') as file:
+            file.write(private_key)
+        subprocess.check_output(('chmod 600 %s' % private_path).split(' '))
+
+    # create the upload folder if it doesn't exist
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+    # scp target zip file to the upload folder
+    subprocess.check_output(('scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/private ubuntu@%s:%s %s/.' %
+        (manager_ip, method_path, UPLOAD_FOLDER)).split(' '))
+
+    # extract file to benchop
+    filename = method_path.split('/')[-1]
     name = filename.split('.')[0]
-    with zipfile.ZipFile(filename, "r") as z:
-        z.extractall("/home/ubuntu/BENCHOP/%s" % (name)) #zip.split('.')[0]))
-    return 1
+    with zipfile.ZipFile('%s/%s' % (UPLOAD_FOLDER, filename), "r") as z:
+        z.extractall("%s/%s" % (BENCHOP_FOLDER, name))
+    return 'uploaded and distributed file %s' % filename
 
 @app.task(queue='default')
 def compute(problemname):
@@ -55,6 +69,11 @@ def test_method_param(x,y,z):
     res = oc.feval('test_function', x, y, z)
     return res
 
-@app.task
+@app.task(queue='default')
 def version():
     return utils.sys.version
+
+@app.task(queue='default')
+def available_methods():
+    methods = [x[0].split('/')[-1] for x in os.walk('/home/ubuntu/BENCHOP/')]
+    return list(filter(lambda x: len(x) > 1, methods))

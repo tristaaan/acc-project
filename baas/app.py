@@ -23,6 +23,9 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+my_key ='acc-group13'
+private_key = subprocess.check_output(['cat', '/home/ubuntu/.ssh/%s' % my_key]).decode()
+
 #methods={'MC','MC-S','QMC-S','MLMC','MLMC-A','FFT','FGL','COS','FD',
 #    'FD-NU','FD-AD','RBF','RBF-FD','RBF-PUM','RBF-LSML','RBF-AD','RBF-MLT'};
 
@@ -124,17 +127,17 @@ def run_test_method():
         - name: a
           in: query
           required: true
-          type: string
+          type: number
           example: 2
         - name: b
           in: query
           required: true
-          type: string
+          type: number
           example: 3
         - name: c
           in: query
           required: true
-          type: string
+          type: number
           example: 4
     responses:
         200:
@@ -174,14 +177,13 @@ def upload_method():
     if file.filename == '':
         flash('No selected file')
         abort(400)
+    # save file to the upload folder, tell the workers to fetch it
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        with open(file_path, 'rb') as zip_file:
-            zip_string = zip_file.read()
-            tasks.upload_zip(filename, zip_string)
-        return ('uploaded and distributed file %s' % filename)
+        r = tasks.upload_zip.delay(file_path, private_key)
+        return r.wait()
     abort(501)
     return 1
 
@@ -199,6 +201,20 @@ def get_workers():
     r = requests.get('http://localhost:5555/api/workers?status')
     return json.dumps(r.json(), indent=2)
 
+@app.route('/workers/methods', methods=['GET'])
+def get_worker_methods():
+    """
+    Get a list of available methods.
+    ---
+    tags:
+        - workers
+    responses:
+        200:
+            description: Array of methods
+    """
+    r = tasks.available_methods.delay()
+    return json.dumps(r.wait())
+
 @app.route('/version', methods=['GET'])
 def version():
     """
@@ -210,7 +226,8 @@ def version():
         200:
             description: version of octave
     """
-    return tasks.version()
+    r = tasks.version.delay()
+    return r.wait()
 
 # consult rabbitmq manager api:
 # https://cdn.rawgit.com/rabbitmq/rabbitmq-management/v3.7.8/priv/www/api/index.html

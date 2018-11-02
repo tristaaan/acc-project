@@ -214,8 +214,12 @@ def get_workers():
         200:
             description: JSON of the workers and their statuses
     """
-    r = requests.get('http://localhost:5555/api/workers?status=online')
-    return json.dumps(r.json(), indent=2)
+    r = requests.get('http://localhost:5555/api/workers?status').json()
+    results = []
+    for w in r:
+        if r[w]['status']:
+            results.append(r[w])
+    return json.dumps(results, indent=2)
 
 @app.route('/workers/methods', methods=['GET'])
 def get_worker_methods():

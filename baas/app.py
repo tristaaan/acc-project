@@ -42,7 +42,7 @@ Swagger(app, template={
 })
 
 # all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
-all_problems = ['problem1_A1', 'problem1_B1', 'problem1_C1', 'problem1_C2']
+all_problems = ['problem1_A1', 'problem1_B1', 'problem1_B2', 'problem1_C1']
 
 @app.route('/problem/all', methods=['GET'])
 def all():
@@ -199,7 +199,7 @@ def get_workers():
         200:
             description: JSON of the workers and their statuses
     """
-    r = requests.get('http://localhost:5555/api/workers?status')
+    r = requests.get('http://localhost:5555/api/workers?status=online')
     return json.dumps(r.json(), indent=2)
 
 @app.route('/workers/methods', methods=['GET'])
@@ -248,7 +248,7 @@ def get_queue():
     data = json.dumps({
         'count':5, 'ackmode':'reject_requeue_true', 'encoding':'auto'
     })
-    r = requests.post('http://localhost:15672/api/queues/myvhost/celery/get', \
+    r = requests.post('http://localhost:15672/api/queues/myvhost/default/get', \
         auth=auth, headers=headers, data=data)
     return json.dumps(r.json(), indent=2)
 
@@ -264,7 +264,7 @@ def purge_queue():
             description: queue
     """
     auth = ('ubuntu', '1234')
-    r = requests.delete('http://localhost:15672/api/queues/myvhost/celery/contents', \
+    r = requests.delete('http://localhost:15672/api/queues/myvhost/default/contents', \
         auth=auth)
     return 'Queue cleared'
 

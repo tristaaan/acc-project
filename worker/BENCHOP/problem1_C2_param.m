@@ -1,4 +1,4 @@
-function [ttimeBSupoutCallII,relerrBSupoutCallII] = problem1_C2_param(S,K,T,r,sig,U)
+function [tBSupoutCallII,rBSupoutCallII] = problem1_C2_param(S,K,T,r,sig,U)
 
 format long
 
@@ -16,7 +16,7 @@ Methods={'MC','MC-S','QMC-S','MLMC','MLMC-A',...
 
 display('Problem 1 c) II');
 rootpath=pwd;
-%S=[97,98,99]; sig=0.01; r=0.1; T=0.25; K=100; 
+%S=[97,98,99]; sig=0.01; r=0.1; T=0.25; K=100;
 B=1.25*K;
 %U=[0.033913177006134   0.512978189232598   1.469203342553328];
 

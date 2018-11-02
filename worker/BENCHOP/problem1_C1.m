@@ -1,4 +1,4 @@
-function [timeBSupoutCallI,relerrBSupoutCallI] = problem1_C1()
+function [tBSupoutCallI,rBSupoutCallI] = problem1_C1()
 
 format long
 

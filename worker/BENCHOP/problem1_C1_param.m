@@ -1,4 +1,4 @@
-function [timeBSupoutCallI,relerrBSupoutCallI] = problem1_C1_param(S,K,T,r,sig,U)
+function [tBSupoutCallI,rBSupoutCallI] = problem1_C1_param(S,K,T,r,sig,U)
 
 format long
 

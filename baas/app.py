@@ -129,7 +129,7 @@ def problem(name):
         tm, rel = tasks.compute.delay(name).get()
     end = time.time()
     benchmark = {'time': flat_result(tm), 'relerr': flat_result(rel)}
-    restults = {'time': end-start, 'benchmark': benchmark}
+    results = {'time': end-start, 'benchmark': benchmark}
     return json.dumps(results)
 
 @app.route('/problem/test', methods=['GET'])

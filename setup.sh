@@ -1,6 +1,16 @@
 #!/bin/bash
-# install all the python stuff
-pip install -r requirements
+# To be run on a fresh instance
+
+# Install prerequisites
+sudo apt-get install docker.io octave
+alias python=python3
+alias pip=pip3
+
+# install all the python
+pip install -r requirements.txt
+
+# run the api
+python baas/app.py &
 
 # prepare queue and worker inspection
 sudo rabbitmq/setup.sh
@@ -12,4 +22,8 @@ sudo docker swarm init
 sudo docker service create --name workers tristaaan/acc-worker
 
 echo 'ready to scale: sudo docker service scale workers=#'
-echo 'create nodes  : python context/spawn-node.py'
+if [-z ${OS_USER_DOMAIN_NAME+x}]; then
+  echo OpenStack credentials unset, you won't be able to spawn nodes.
+else
+  echo create nodes  : python context/spawn-node.py
+fi

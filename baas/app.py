@@ -4,7 +4,7 @@ import requests
 import os
 import subprocess
 import sys
-from flask import Flask, abort, jsonify, request
+from flask import Flask, abort, jsonify, request, redirect, url_for
 from flasgger import Swagger
 from celery import group
 from werkzeug.utils import secure_filename
@@ -43,6 +43,10 @@ Swagger(app, template={
 
 # all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
 all_problems = ['problem1_A1', 'problem1_B1', 'problem1_B2', 'problem1_C1']
+
+@app.route('/')
+def goto_api():
+    return redirect('/apidocs', code=302)
 
 @app.route('/problem/all', methods=['GET'])
 def all():

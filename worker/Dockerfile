@@ -2,7 +2,7 @@ FROM ubuntu
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get install -y octave
-RUN apt-get install -y wget
+RUN apt-get install -y openssh-client
 RUN apt-get install -y python-dev python-pip
 RUN apt-get -y install openssh-client
 RUN pip install celery

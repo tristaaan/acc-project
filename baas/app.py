@@ -41,7 +41,8 @@ Swagger(app, template={
     }
 })
 
-all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
+# all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
+all_problems = ['problem1_A1', 'problem1_B1', 'problem1_C1', 'problem1_C2']
 
 @app.route('/problem/all', methods=['GET'])
 def all():

@@ -1,9 +1,6 @@
 #!/usr/bin/python
-import json
-import requests
-import os
-import subprocess
-import sys
+import json, os, requests, subprocess, sys, time
+import numpy as np
 from flask import Flask, abort, jsonify, request, redirect, url_for
 from flasgger import Swagger
 from celery import group
@@ -44,6 +41,10 @@ Swagger(app, template={
 # all_problems = ['problem1_A1', 'problem1_A2', 'problem1_B1', 'problem1_B2', 'problem1_C1', 'problem1_C2']
 all_problems = ['problem1_A1', 'problem1_B1', 'problem1_B2', 'problem1_C1']
 
+# [[x], [y], [z]] -> [x, y, z]
+def flat_result(res):
+    return list(np.hstack(res))
+
 @app.route('/')
 def goto_api():
     return redirect('/apidocs', code=302)
@@ -61,11 +62,17 @@ def all():
         200:
             description: The results of the benchmark
     """
+    start = time.time()
     stats = []
     for p in all_problems:
         stats.append(tasks.compute.s(p))
-    results = group(stats).apply_async() \
-        .get(timeout=600)
+    benchmark_arr = group(stats).apply_async().get(timeout=600)
+    end = time.time()
+    benchmarks = {}
+    for i, b in enumerate(benchmark_arr):
+        bm = { 'time': flat_result(b[0]), 'relerr': flat_result(b[1]) }
+        benchmarks[all_problems[i]] = bm
+    results = {'time': end - start, 'benchmarks': benchmarks}
     return json.dumps(results)
 
 @app.route('/problem/<string:name>', methods=['GET'])
@@ -114,12 +121,16 @@ def problem(name):
         404:
             description: Problem not found
     '''
+    start = time.time()
     if 'S' in request.args or 'K' in request.args or \
         'T' in request.args or 'r' in request.args or 'sig' in request.args:
-        tm, rel = tasks.compute_param.delay(name, methods, request.args)
+        tm, rel = tasks.compute_param.delay(name, methods, request.args).get()
     else:
         tm, rel = tasks.compute.delay(name).get()
-    return str(tm) + ' ' + str(rel)
+    end = time.time()
+    benchmark = {'time': flat_result(tm), 'relerr': flat_result(rel)}
+    restults = {'time': end-start, 'benchmark': benchmark}
+    return json.dumps(results)
 
 @app.route('/problem/test', methods=['GET'])
 def run_test_method():

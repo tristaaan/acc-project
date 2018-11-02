@@ -2,4 +2,8 @@ baas
 Flask
 flasgger
 celery
-Oct2Py
+numpy
+scipy
+oct2py
+python-keystoneclient
+python-openstackclient

@@ -21,6 +21,10 @@ sudo docker pull tristaaan/acc-worker
 sudo docker swarm init
 sudo docker service create --name workers tristaaan/acc-worker
 
+# Do not put workers on the manager node
+MANAGER_ID=$(sudo docker node ls -f "role=manager" --format "{{.ID}}")
+docker node update --availability drain ${MANAGER_ID}
+
 echo 'ready to scale: sudo docker service scale workers=#'
 if [-z ${OS_USER_DOMAIN_NAME+x}]; then
   echo OpenStack credentials unset, you won't be able to spawn nodes.

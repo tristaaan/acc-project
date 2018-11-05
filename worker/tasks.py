@@ -5,7 +5,8 @@ from celery import Celery
 from kombu import Queue
 from kombu.common import Broadcast
 
-manager_ip = '192.168.1.7'
+manager_ip = os.getenv('MANAGER_IP', '192.168.1.7')
+
 baas_broker = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
 baas_backend = 'amqp://ubuntu:1234@%s:5672/myvhost' % manager_ip
 app = Celery('celery_app', broker=baas_broker, backend=baas_backend)

@@ -9,6 +9,9 @@ alias pip=pip3
 # install all the python
 pip install -r requirements.txt
 
+export WORKER_NAME=acc_worker
+export MANAGER_IP=$(ifconfig -a | sed -En 's/.*inet addr:(192.168.[0-9]+.[0-9]+).*/\1/p')
+
 # run the api
 python baas/app.py &
 
@@ -19,7 +22,8 @@ sudo flower/setup.sh
 # get the worker image, create a swarm
 sudo docker pull tristaaan/acc-worker
 sudo docker swarm init
-sudo docker service create --name workers tristaaan/acc-worker
+sudo docker service create --name workers tristaaan/acc-worker:latest \
+  -e MANAGER_IP=${MANAGER_IP}
 
 # Do not put workers on the manager node
 MANAGER_ID=$(sudo docker node ls -f "role=manager" --format "{{.ID}}")

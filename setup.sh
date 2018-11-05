@@ -30,9 +30,13 @@ docker service create --name workers tristaaan/acc-worker:latest \
 MANAGER_ID=$(docker node ls -f "role=manager" --format "{{.ID}}")
 docker node update --availability drain ${MANAGER_ID}
 
-echo 'ready to scale: sudo docker service scale workers=#'
-if [-z ${OS_USER_DOMAIN_NAME+x}]; then
-  echo OpenStack credentials unset, you won't be able to spawn nodes.
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+printf '${GREEN}ready to scale: sudo docker service scale workers=#${NC}\n'
+if [[ -z ${OS_USER_DOMAIN_NAME+x} ]]; then
+  printf "${RED}OpenStack credentials unset, you won't be able to spawn nodes.${NC}\n"
 else
-  echo create nodes  : python context/spawn-node.py
+  printf "create nodes  : python context/spawn-node.py\n"
 fi

@@ -1,8 +1,8 @@
 #!/bin/bash
-# To be run on a fresh instance
+# To be run on a fresh instance, use sudo
 
 # Install prerequisites
-sudo apt-get install docker.io octave
+apt-get install -y docker.io octave
 alias python=python3
 alias pip=pip3
 
@@ -15,18 +15,19 @@ export MANAGER_IP=$(ifconfig -a | sed -En 's/.*inet addr:(192.168.[0-9]+.[0-9]+)
 # run the api
 python baas/app.py &
 
-# prepare queue and worker inspection
-sudo rabbitmq/setup.sh
-sudo flower/setup.sh
+# start the queue and worker inspection tool
+rabbitmq/setup.sh
+flower/setup.sh
 
 # get the worker image, create a swarm
-sudo docker pull tristaaan/acc-worker
-sudo docker swarm init
-sudo docker service create --name workers tristaaan/acc-worker:latest \
+docker pull tristaaan/acc-worker
+docker swarm init
+docker swarm update --task-history-limit 1
+docker service create --name workers tristaaan/acc-worker:latest \
   -e MANAGER_IP=${MANAGER_IP}
 
 # Do not put workers on the manager node
-MANAGER_ID=$(sudo docker node ls -f "role=manager" --format "{{.ID}}")
+MANAGER_ID=$(docker node ls -f "role=manager" --format "{{.ID}}")
 docker node update --availability drain ${MANAGER_ID}
 
 echo 'ready to scale: sudo docker service scale workers=#'

@@ -3,14 +3,15 @@
 
 ## Getting started
 
-Setup a new VM with docker, clone the repository:
+Setup a new VM with docker, clone the repository, `cd` to the folder, and run `setup.sh`:
 
 ```
 git clone https://github.com/tristaaan/acc-project.git
+cd acc-projcet
+sudo setup.sh
 ```
 
-Run `setup.sh` in the root directory. This will install some required python libraries and spawn the RabbitMQ and Flower containers. It will also initialize and setup a docker swarm which runs the worker container.
-
+This will install apt-libraries, some required python libraries, and spawn the RabbitMQ and Flower containers. It will also initialize and setup a docker swarm which runs the worker container.
 
 ## Usage
 
@@ -31,8 +32,6 @@ sudo docker service scale workers=2
 
 Note that the new node might not be immediately available and ready, check with:
 
-```sj
+```sh
 docker node ls
 ```
-
-

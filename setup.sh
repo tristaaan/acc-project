@@ -2,7 +2,7 @@
 # To be run on a fresh instance, use sudo
 
 # Install prerequisites
-apt-get install -y docker.io octave
+apt-get install -y docker.io octave python-dev python-pip
 alias python=python3
 alias pip=pip3
 
